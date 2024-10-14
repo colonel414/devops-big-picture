@@ -1,0 +1,145 @@
+Kubernetes Debug Script
+Overview
+This Kubernetes Debug Script is designed to help engineers debug common Kubernetes resources interactively. It allows users to troubleshoot various components such as Pods, Deployments, StatefulSets, DaemonSets, ReplicaSets, ReplicationControllers, Jobs, and CronJobs. The script features:
+
+Step-by-Step Debugging: Select the Kubernetes component to debug and follow prompts to gather detailed information.
+Failure Recovery: In case of an error or invalid input, the script allows the user to retry or go back to the previous step.
+Cluster-Wide Checks: After debugging a specific resource, users can check the status of Kubernetes nodes or overall cluster information.
+Logs Inspection: The script also offers the option to inspect logs of a Pod or container if required.
+Components Explained
+Here’s a detailed explanation of the components you can debug using this script:
+
+1. Pod
+A Pod is the smallest deployable unit in Kubernetes, representing a single instance of a running process in the cluster. Pods can contain one or more containers.
+
+Debugging Commands:
+kubectl describe pod <pod-name>: Shows detailed information about the Pod's configuration and events.
+kubectl logs <pod-name>: Fetches the logs from the Pod's containers to help in troubleshooting issues.
+Common Issues:
+CrashLoopBackOff (indicates repeated restarts).
+ImagePullBackOff (issues pulling the image).
+OOMKilled (out-of-memory errors).
+2. Deployment
+A Deployment is used to manage stateless applications in Kubernetes. It ensures that a certain number of Pods are running at all times and can handle updates and rollbacks efficiently.
+
+Debugging Commands:
+kubectl describe deployment <deployment-name>: Provides details about the Deployment's configuration, Pods, and history.
+kubectl rollout status deployment <deployment-name>: Tracks the progress of Deployment updates or rollbacks.
+Common Issues:
+Unsuccessful rollouts or Pods stuck in a pending or error state.
+Deployment not scaling to the desired number of replicas.
+3. StatefulSet
+A StatefulSet is used for managing stateful applications where Pods need to maintain a persistent identity and storage. It's useful for databases or distributed systems like Kafka and Cassandra.
+
+Debugging Commands:
+kubectl describe statefulset <statefulset-name>: Shows detailed information about the StatefulSet, including Pod status and history.
+kubectl rollout status statefulset <statefulset-name>: Monitors the progress of StatefulSet updates.
+Common Issues:
+Pods not maintaining their state or identity.
+Issues with volume mounts for persistent data.
+4. DaemonSet
+A DaemonSet ensures that a copy of a specific Pod runs on all or some of the nodes in the cluster. This is ideal for log collectors, monitoring agents, or other system-level tasks.
+
+Debugging Commands:
+kubectl describe daemonset <daemonset-name>: Shows detailed information about the DaemonSet and its Pods.
+kubectl rollout status daemonset <daemonset-name>: Checks the rollout status of the DaemonSet.
+Common Issues:
+DaemonSet Pods not running on certain nodes.
+Pod restarts or issues with node-specific resource constraints.
+5. ReplicaSet
+A ReplicaSet ensures that a specified number of Pod replicas are running at all times. It’s primarily used by Deployments to maintain the desired state of Pods.
+
+Debugging Commands:
+kubectl describe replicaset <replicaset-name>: Provides detailed information about the ReplicaSet’s status and Pod conditions.
+Common Issues:
+Pods not being scaled correctly to meet the replica count.
+ReplicaSet unable to start or replace Pods.
+6. ReplicationController
+A ReplicationController is similar to a ReplicaSet in that it ensures a specified number of Pod replicas are running at any given time. However, ReplicationControllers are less commonly used now, with ReplicaSets often replacing them.
+
+Debugging Commands:
+kubectl describe rc <rc-name>: Describes the details of the ReplicationController, including the state of Pods.
+Common Issues:
+Pod replicas not starting or scaling properly.
+Pods in a crash or pending state due to resource constraints.
+7. Job
+A Job creates one or more Pods to run a specific task and ensures that a specified number of Pods successfully terminate. Jobs are used for batch processing or tasks that need to run to completion.
+
+Debugging Commands:
+kubectl describe job <job-name>: Shows detailed information about the Job, including its Pod status.
+kubectl get job <job-name> -o wide: Provides a wider view of the Job, including start time, completion time, and status.
+Common Issues:
+Pods in a Job failing or getting stuck in a restart loop.
+Jobs not completing successfully due to resource limitations.
+8. CronJob
+A CronJob is a type of Job that runs on a schedule. It’s useful for periodic tasks such as backups or report generation.
+
+Debugging Commands:
+kubectl describe cronjob <cronjob-name>: Provides details about the CronJob schedule, history, and Pod status.
+kubectl get cronjob <cronjob-name> -o wide: Displays more detailed information about the schedule and execution status.
+Common Issues:
+CronJobs not triggering or failing to execute correctly.
+Failed Pods associated with the CronJob.
+Script Features
+1. Failure Recovery
+If a command fails or an invalid input is provided (e.g., entering a non-existent resource name), the script gives the user the option to:
+
+Retry the command.
+Go back to the previous step and make a new selection.
+Exit the script if the user chooses to stop.
+2. Step-Back Feature
+If a user makes a mistake or wishes to change their selection, they can choose to "go back one step" and reselect the component to debug or correct any input errors.
+
+3. Node and Cluster Info
+At the end of the component-specific debugging, the script asks the user if they want to check:
+
+The status of the Kubernetes nodes.
+Overall cluster info (e.g., the URL of the master and the health of the cluster services). These optional checks help to assess whether the issue might be due to node-level problems or cluster-wide configurations.
+Usage Instructions
+1. Save the script
+bash
+Copy code
+vi k8s-debug-recover.sh
+2. Make the script executable:
+bash
+Copy code
+chmod +x k8s-debug-recover.sh
+3. Run the script:
+bash
+Copy code
+./k8s-debug-recover.sh
+4. Follow the prompts:
+The script will ask you to:
+
+Provide a namespace (optional).
+Select the Kubernetes resource you wish to debug.
+Inspect logs or monitor rollouts based on the resource.
+Retry, go back, or exit in case of failure or mistakes.
+Example Walkthrough
+Namespace Selection:
+You'll first be asked for the namespace in which the resource exists. If you leave it blank, the script defaults to the default namespace.
+
+Component Selection:
+Choose the resource type, such as a Pod or Deployment, you want to debug by entering the corresponding number.
+
+Fetching Information:
+The script will automatically fetch detailed information for the resource, such as Pod descriptions or Deployment rollout status.
+
+Logs:
+For Pod-related issues, you will be prompted to view logs, which can help identify why a Pod might be failing.
+
+Optional Cluster-Wide Checks:
+After debugging the resource, you’ll have the option to check the node status and cluster info for a broader perspective.
+
+Troubleshooting Common Issues
+Pod Pending or CrashLoopBackOff:
+Check Pod events for reasons like insufficient resources, networking issues, or failed image pulls.
+
+Deployment Rollback:
+If a Deployment update fails, use kubectl rollout undo deployment <deployment-name> to revert to a previous version.
+
+Job/ CronJob Failures:
+Look at the logs of failed Pods and check if they have completed their tasks or failed due to resource constraints.
+
+Conclusion
+This interactive debug script makes troubleshooting Kubernetes resources simpler and more systematic. It helps by focusing on detailed command outputs while allowing flexibility through retry and step-back options.
